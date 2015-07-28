@@ -6,7 +6,7 @@ Millipede calls
 
 from millipede import millipede
 
-from flask import Blueprint, make_response, g
+from flask import Blueprint, make_response, g, current_app
 from flask_restful import Api, Resource, reqparse
 
 from lib.reqtypes import boolean
@@ -32,6 +32,12 @@ class Millipede(Resource):
         parser.add_argument('comment', type=str, default=None)
 
         args = parser.parse_args()
+
+        max_size = current_app.config.get('MILLIPEDE_MAX_SIZE')
+        if max_size is not None:
+            max_size = int(max_size)
+            if args.size > max_size:
+                args.size = max_size
 
         cached = None
         if g.redis:
